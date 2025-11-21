@@ -1,0 +1,295 @@
+{
+  "tool_registry": {
+    "load_csv_data": {
+      "name": "load_csv_data",
+      "type": "data_loader",
+      "description": "Load and parse CSV files with business metrics",
+      "category": "Data Ingestion",
+      "parameters": {
+        "filepath": {
+          "type": "string",
+          "description": "Path to CSV file",
+          "required": true,
+          "example": "data/sample_business_metrics.csv"
+        },
+        "validate": {
+          "type": "boolean",
+          "description": "Validate data schema and types",
+          "required": false,
+          "default": true
+        },
+        "max_rows": {
+          "type": "integer",
+          "description": "Maximum rows to load",
+          "required": false,
+          "default": 10000
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Loaded CSV data as list of dicts"
+          },
+          "row_count": {
+            "type": "integer"
+          },
+          "columns": {
+            "type": "array"
+          }
+        }
+      },
+      "errors": [
+        "File not found",
+        "Invalid CSV format",
+        "Data validation failed"
+      ],
+      "mv_status": "production",
+      "next_phase": "Support Google Sheets API"
+    },
+    "detect_anomalies": {
+      "name": "detect_anomalies",
+      "type": "analytics",
+      "description": "Detect anomalies in numeric data using statistical methods",
+      "category": "Analysis",
+      "methods": ["iqr", "zscore", "threshold"],
+      "parameters": {
+        "data": {
+          "type": "array",
+          "description": "Numeric data array to analyze",
+          "required": true,
+          "example": [100, 102, 98, 500]
+        },
+        "method": {
+          "type": "string",
+          "description": "Detection method: 'iqr', 'zscore', or 'threshold'",
+          "required": false,
+          "default": "iqr",
+          "enum": ["iqr", "zscore", "threshold"]
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Sensitivity threshold (1.5 for IQR, 3 for Z-score)",
+          "required": false,
+          "default": 1.5
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "anomalies": {
+            "type": "array",
+            "description": "List of detected anomalies with scores"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "method": {
+            "type": "string"
+          }
+        }
+      },
+      "algorithms": {
+        "iqr": {
+          "description": "Interquartile Range method",
+          "complexity": "O(n log n)",
+          "threshold_default": 1.5
+        },
+        "zscore": {
+          "description": "Standard deviation method",
+          "complexity": "O(n)",
+          "threshold_default": 3
+        },
+        "threshold": {
+          "description": "Simple above/below threshold",
+          "complexity": "O(n)",
+          "threshold_default": 1.5
+        }
+      },
+      "mv_status": "production",
+      "next_phase": "Add Isolation Forest and DBSCAN algorithms"
+    },
+    "search_market_trends": {
+      "name": "search_market_trends",
+      "type": "external_search",
+      "description": "Search for market trends (mock - will use Google API later)",
+      "category": "Research",
+      "parameters": {
+        "topic": {
+          "type": "string",
+          "description": "Topic to search trends for",
+          "required": true,
+          "example": "Sales decline"
+        },
+        "region": {
+          "type": "string",
+          "description": "Geographic region",
+          "required": false,
+          "default": "Global"
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "trends": {
+            "type": "array",
+            "description": "List of market trends"
+          },
+          "region": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "implementation_notes": "Currently mock database. Will integrate with Google Custom Search API in Day 3.",
+      "mv_status": "mock",
+      "production_phase": "Day 3",
+      "future_integration": {
+        "api": "Google Custom Search API",
+        "authentication": "API Key",
+        "rate_limits": "100 queries/day (free tier)",
+        "fallback": "Mock database"
+      }
+    },
+    "generate_report_html": {
+      "name": "generate_report_html",
+      "type": "reporting",
+      "description": "Generate formatted HTML reports from analysis results",
+      "category": "Output",
+      "parameters": {
+        "report_data": {
+          "type": "object",
+          "description": "Report data with issues and recommendations",
+          "required": true,
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "issues": {
+              "type": "array"
+            },
+            "recommendations": {
+              "type": "array"
+            }
+          }
+        },
+        "output_file": {
+          "type": "string",
+          "description": "Optional file path to save HTML",
+          "required": false,
+          "example": "output/report.html"
+        }
+      },
+      "returns": {
+        "type": "object",
+        "properties": {
+          "html": {
+            "type": "string",
+            "description": "Generated HTML content"
+          },
+          "file_saved": {
+            "type": "boolean"
+          },
+          "file_path": {
+            "type": "string"
+          }
+        }
+      },
+      "features": [
+        "Professional HTML/CSS formatting",
+        "Issue ranking by severity",
+        "Recommendations display",
+        "Timestamp tracking",
+        "Optional file export"
+      ],
+      "mv_status": "production",
+      "next_phase": "Add PDF export, email delivery"
+    },
+    "log_agent_action": {
+      "name": "log_agent_action",
+      "type": "observability",
+      "description": "Log agent actions for tracing and debugging",
+      "category": "Logging",
+      "parameters": {
+        "agent_name": {
+          "type": "string",
+          "description": "Name of the agent performing action",
+          "required": true,
+          "example": "Coordinator"
+        },
+        "action": {
+          "type": "string",
+          "description": "Action being performed",
+          "required": true,
+          "example": "start_analysis"
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional action details",
+          "required": false,
+          "example": {"company": "Acme Corp", "period": "Q4 2024"}
+        },
+        "level": {
+          "type": "string",
+          "description": "Log level: DEBUG, INFO, WARNING, ERROR",
+          "required": false,
+          "default": "INFO",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+        }
+      },
+      "output_format": "JSONL (newline-delimited JSON)",
+      "output_location": "./logs/agent_actions.jsonl",
+      "returns": {
+        "type": "object",
+        "properties": {
+          "logged": {
+            "type": "boolean"
+          },
+          "log_file": {
+            "type": "string"
+          },
+          "entry": {
+            "type": "object"
+          }
+        }
+      },
+      "features": [
+        "Structured JSON logging",
+        "Multiple log levels",
+        "Timestamp tracking",
+        "JSONL format for analysis",
+        "File and console output"
+      ],
+      "mv_status": "production",
+      "next_phase": "Add cloud logging (Google Cloud Logging)"
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-11-21",
+    "status": "MVP Complete",
+    "tools_count": 5,
+    "production_tools": 4,
+    "mock_tools": 1,
+    "next_phase_upgrades": {
+      "Day 2": [
+        "Real anomaly detection algorithms (Isolation Forest)",
+        "CSV validation with schema enforcement",
+        "Performance optimizations"
+      ],
+      "Day 3": [
+        "Google Search API integration for market trends",
+        "Gemini API for trend analysis",
+        "Real-time data feeds"
+      ],
+      "Day 4": [
+        "Cloud logging integration",
+        "Advanced reporting (PDF, email)",
+        "Tool usage analytics"
+      ]
+    }
+  }
+}
