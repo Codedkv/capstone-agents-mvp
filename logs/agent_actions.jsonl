@@ -1,0 +1,22 @@
+{"timestamp": "2025-11-21T13:58:55.807231Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T13:58:55.808291Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T14:01:52.222652Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T14:01:52.223241Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T14:10:35.907846Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T14:10:35.908401Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T15:17:27.718172Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T15:17:27.719147Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T15:21:37.698979Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T15:21:37.699544Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T15:23:12.148722Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T15:23:12.149279Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T15:24:58.064192Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T15:24:58.064755Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T16:32:41.114713Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T16:32:41.115342Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-21T16:34:04.126208Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-21T16:34:04.126791Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-24T10:33:30.639766Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T10:33:30.640780Z", "agent": "Coordinator", "action": "error", "details": {"error": "Data loading failed: list index out of range"}, "level": "ERROR"}
+{"timestamp": "2025-11-24T10:57:17.201542Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T10:57:17.212420Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"status": "success"}, "level": "INFO"}
