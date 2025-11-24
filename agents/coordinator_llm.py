@@ -18,7 +18,7 @@ class LLMCoordinatorAgent:
             user_input="Load and validate business data from the provided CSV file.",
             context={"csv_path": csv_path}
         )
-        self.context.set("data_load_result", data_load_result)
+        await self.context.set("data_load_result", data_load_result)
 
         # 2. Analyze business metrics
         analyst = self.agents["Analyst"]
@@ -26,7 +26,7 @@ class LLMCoordinatorAgent:
             user_input="Analyze the loaded dataset for anomalies, patterns, and root causes.",
             context={"dataset": data_load_result}
         )
-        self.context.set("analysis_result", analysis_result)
+        await self.context.set("analysis_result", analysis_result)
 
         # 3. Generate recommendations
         recommender = self.agents["Recommender"]
@@ -34,7 +34,7 @@ class LLMCoordinatorAgent:
             user_input="Generate actionable business recommendations based on the analysis.",
             context={"analysis": analysis_result}
         )
-        self.context.set("recommendation_result", recommendation_result)
+        await self.context.set("recommendation_result", recommendation_result)
 
         # 4. Critique results
         critic = self.agents["Critic"]
@@ -46,7 +46,7 @@ class LLMCoordinatorAgent:
                 "recommendation_result": recommendation_result
             }
         )
-        self.context.set("critique_result", critique_result)
+        await self.context.set("critique_result", critique_result)
 
         # 5. Summary and export (Coordinator)
         coordinator = self.agents["Coordinator"]
@@ -59,5 +59,5 @@ class LLMCoordinatorAgent:
                 "critique_result": critique_result
             }
         )
-        self.context.set("final_summary", final_summary)
+        await self.context.set("final_summary", final_summary)
         return final_summary
