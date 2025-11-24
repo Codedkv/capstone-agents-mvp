@@ -29,3 +29,27 @@
 {"timestamp": "2025-11-24T11:35:24.837000Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
 {"timestamp": "2025-11-24T11:35:24.837662Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
 {"timestamp": "2025-11-24T12:27:11.694638Z", "agent": "TestAgent", "action": "test_adk_tools", "details": {"test": "ADK compatibility"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.770792Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.780190Z", "agent": "AnalystAgent", "action": "start_analysis", "details": {"anomaly_count": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.780668Z", "agent": "AnalystAgent", "action": "analysis_complete", "details": {"patterns_found": 1, "severity": "MEDIUM", "confidence": 0.95}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.781283Z", "agent": "RecommendationAgent", "action": "start_recommendation_generation", "details": {"severity": "MEDIUM"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.781656Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:36.782377Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.187258Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.188038Z", "agent": "AnalystAgent", "action": "start_analysis", "details": {"anomaly_count": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.188480Z", "agent": "AnalystAgent", "action": "analysis_complete", "details": {"patterns_found": 1, "severity": "MEDIUM", "confidence": 0.95}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.188757Z", "agent": "RecommendationAgent", "action": "start_recommendation_generation", "details": {"severity": "MEDIUM"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.189040Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:43.189671Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.080491Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.081232Z", "agent": "AnalystAgent", "action": "start_analysis", "details": {"anomaly_count": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.081635Z", "agent": "AnalystAgent", "action": "analysis_complete", "details": {"patterns_found": 1, "severity": "MEDIUM", "confidence": 0.95}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.081966Z", "agent": "RecommendationAgent", "action": "start_recommendation_generation", "details": {"severity": "MEDIUM"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.082286Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:49.082890Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.089018Z", "agent": "Coordinator", "action": "start_analysis", "details": {"file": "data/sample_business_metrics.csv"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.089867Z", "agent": "AnalystAgent", "action": "start_analysis", "details": {"anomaly_count": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.090307Z", "agent": "AnalystAgent", "action": "analysis_complete", "details": {"patterns_found": 1, "severity": "MEDIUM", "confidence": 0.95}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.090785Z", "agent": "RecommendationAgent", "action": "start_recommendation_generation", "details": {"severity": "MEDIUM"}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.091139Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
+{"timestamp": "2025-11-24T12:58:56.091822Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}

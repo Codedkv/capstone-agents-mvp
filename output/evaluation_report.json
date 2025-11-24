@@ -1,0 +1,25 @@
+{
+  "test_results": [
+    {
+      "test_case": "normal_operations",
+      "effectiveness": 24,
+      "efficiency": 86
+    },
+    {
+      "test_case": "no_anomalies",
+      "effectiveness": 30,
+      "efficiency": 86
+    },
+    {
+      "test_case": "multiple_anomalies",
+      "effectiveness": 24,
+      "efficiency": 86
+    }
+  ],
+  "dimension_scores": {
+    "effectiveness_score": 26.0,
+    "efficiency_score": 86.0,
+    "robustness_score": 100.0
+  },
+  "overall_quality": 70.7
+}

@@ -1,0 +1,10 @@
+{
+  "total_agent_calls": 3,
+  "total_tool_calls": 4,
+  "error_count": 0,
+  "avg_latency_ms": 1763989129082,
+  "success_rate": 1.0,
+  "anomalies_found": 0,
+  "recommendations_generated": 0,
+  "max_severity": "LOW"
+}

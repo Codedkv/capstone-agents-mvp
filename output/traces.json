@@ -1,0 +1,32 @@
+{
+  "77074b6d-530d-4d76-b950-4eff03abdc9a": {
+    "start": "2025-11-24T13:58:49.080481",
+    "spans": [
+      {
+        "name": "Coordinator_start",
+        "timestamp": "2025-11-24T13:58:49.080484"
+      },
+      {
+        "name": "AnalystAgent_start",
+        "timestamp": "2025-11-24T13:58:49.081223"
+      },
+      {
+        "name": "AnalystAgent_end",
+        "timestamp": "2025-11-24T13:58:49.081947"
+      },
+      {
+        "name": "RecommendationAgent_start",
+        "timestamp": "2025-11-24T13:58:49.081959"
+      },
+      {
+        "name": "RecommendationAgent_end",
+        "timestamp": "2025-11-24T13:58:49.082529"
+      },
+      {
+        "name": "Coordinator_end",
+        "timestamp": "2025-11-24T13:58:49.083177"
+      }
+    ],
+    "agent": "Coordinator"
+  }
+}
