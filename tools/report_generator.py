@@ -1,76 +1,23 @@
-from .base_tool import BaseTool
-import os
-
-class ReportGeneratorTool(BaseTool):
-    def __init__(self):
-        super().__init__("generate_report_html", "Generate HTML report from analysis results")
-
-    async def execute(self, report_data, output_file=None):
-        try:
-            title = report_data.get("title", "Report")
-            issues = report_data.get("issues", [])
-            recommendations = report_data.get("recommendations", [])
-
-            html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{title}</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-        h1 {{ color: #333; }}
-        h2 {{ color: #666; }}
-        ul {{ line-height: 1.6; }}
-        .severity-high {{ color: red; font-weight: bold; }}
-        .severity-medium {{ color: orange; }}
-        .severity-low {{ color: green; }}
-    </style>
-</head>
-<body>
-    <h1>{title}</h1>
-    <h2>Issues Detected</h2>
-    <ul>
-"""
-            for issue in issues:
-                severity = issue.get('severity', 'UNKNOWN')
-                description = issue.get('description', 'No description')
-                severity_class = f"severity-{severity.lower()}"
-                html += f'        <li class="{severity_class}">{description} <strong>(Severity: {severity})</strong></li>\n'
-
-            html += """    </ul>
-    <h2>Recommendations</h2>
-    <ul>
-"""
-            for rec in recommendations:
-                html += f'        <li>{rec}</li>\n'
-
-            html += """    </ul>
-</body>
-</html>"""
-
-            if output_file:
-                os.makedirs(os.path.dirname(output_file) or '.', exist_ok=True)
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(html)
-                file_saved = True
-                file_path = os.path.abspath(output_file)
-            else:
-                file_saved = False
-                file_path = None
-
-            return type("Result", (), {
-                "success": True,
-                "data": {
-                    "html": html,
-                    "file_saved": file_saved,
-                    "file_path": file_path
-                },
-                "error": None
-            })()
-
-        except Exception as e:
-            return type("Result", (), {
-                "success": False,
-                "data": None,
-                "error": f"Report generation failed: {e}"
-            })()
+def generate_report_html(analysis_result, recommendation_result, critique_result, summary, output_path=None):
+    """
+    Generate HTML report from agent results.
+    Arguments:
+        analysis_result: dict/str (output from Analyst agent)
+        recommendation_result: dict/str (output from Recommender agent)
+        critique_result: dict/str (output from Critic agent)
+        summary: dict/str (final summary from Coordinator agent)
+        output_path: str (optional — path to save html)
+    Returns:
+        str: HTML content
+    """
+    html = "<html><head><title>LLM Capstone Analysis Report</title></head><body>"
+    html += "<h1>Business Analysis Report</h1>"
+    html += "<h2>Analysis</h2><pre>{}</pre>".format(str(analysis_result))
+    html += "<h2>Recommendations</h2><pre>{}</pre>".format(str(recommendation_result))
+    html += "<h2>Critique</h2><pre>{}</pre>".format(str(critique_result))
+    html += "<h2>Final Summary</h2><pre>{}</pre>".format(str(summary))
+    html += "</body></html>"
+    if output_path:
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html)
+    return html

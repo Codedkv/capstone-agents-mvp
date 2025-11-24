@@ -1,52 +1,36 @@
 import statistics
-from .base_tool import BaseTool
 
-class AnomalyDetectorTool(BaseTool):
-    def __init__(self):
-        super().__init__("detect_anomalies", "Statistical anomaly detection (IQR, Z-score, Threshold)")
-
-    async def execute(self, data, method="iqr", threshold=1.5):
-        try:
-            if not isinstance(data, list) or len(data) < 3:
-                return type("Result", (), {
-                    "success": False, "data": None,
-                    "error": "Insufficient data"
-                })()
-
-            anomalies = []
-            if method == "iqr":
-                sorted_data = sorted(data)
-                q1 = sorted_data[len(sorted_data) // 4]
-                q3 = sorted_data[3 * len(sorted_data) // 4]
-                iqr = q3 - q1
-                lower = q1 - threshold * iqr
-                upper = q3 + threshold * iqr
-                anomalies = [v for v in data if v < lower or v > upper]
-
-            elif method == "zscore":
-                mean = statistics.mean(data)
-                stdev = statistics.stdev(data)
-                anomalies = [v for v in data if stdev > 0 and abs((v - mean) / stdev) > (threshold if threshold else 3)]
-
-            elif method == "threshold":
-                anomalies = [v for v in data if abs(v) > threshold]
-
-            else:
-                return type("Result", (), {
-                    "success": False, "data": None,
-                    "error": f"Unknown method: {method}"
-                })()
-
-            return type("Result", (), {
-                "success": True,
-                "data": {
-                    "anomalies": anomalies,
-                    "count": len(anomalies),
-                    "method": method
-                }
-            })()
-        except Exception as e:
-            return type("Result", (), {
-                "success": False, "data": None,
-                "error": f"Detection failed: {e}"
-            })()
+def detect_anomalies(data, method="iqr", threshold=1.5):
+    """
+    Detect anomalies in business data using IQR or Z-score methods.
+    Arguments:
+        data: list of dicts, each dict = row of metrics
+        method: "iqr" or "zscore"
+        threshold: sensitivity for detection
+    Returns:
+        dict: { "anomalies": [rows], "total": N, "method": str }
+    """
+    if not data or not isinstance(data, list) or len(data) == 0:
+        return {"anomalies": [], "total": 0, "method": method}
+    # Example: run only on 'revenue' column
+    values = [float(row.get("revenue", 0)) for row in data if "revenue" in row]
+    anomalies = []
+    if method == "iqr":
+        q1 = statistics.quantiles(values, n=4)[0]
+        q3 = statistics.quantiles(values, n=4)[2]
+        iqr = q3 - q1
+        lower = q1 - threshold * iqr
+        upper = q3 + threshold * iqr
+        for row in data:
+            v = float(row.get("revenue", 0))
+            if v < lower or v > upper:
+                anomalies.append(row)
+    if method == "zscore":
+        mean = statistics.mean(values)
+        stdev = statistics.stdev(values)
+        for row in data:
+            v = float(row.get("revenue", 0))
+            z = (v - mean) / stdev if stdev else 0
+            if abs(z) > threshold:
+                anomalies.append(row)
+    return {"anomalies": anomalies, "total": len(anomalies), "method": method}
