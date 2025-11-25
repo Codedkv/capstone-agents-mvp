@@ -12,9 +12,12 @@ def test_adk_tools():
     
     print("=== Testing ADK Tool Wrappers ===\n")
     
-    # Test 1: Load CSV
+    # Test 1: Load CSV/Excel via config
     print("1. Testing load_data...")
-    result = load_data(filepath="data/sample_business_metrics.csv")
+    result = load_data(
+        filepath="data/sample_business_metrics.csv",
+        config_path="config/analysis_settings.json"
+    )
     print(f"   Status: {result['status']}")
     if result['status'] == 'success':
         print(f"   Rows loaded: {result['row_count']}")

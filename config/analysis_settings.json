@@ -1,0 +1,7 @@
+{
+  "required_columns": ["date", "store_name", "product_name", "quantity", "price_per_unit", "total_value"],
+  "anomaly_columns": ["quantity", "total_value"],
+  "anomaly_method": "iqr",
+  "anomaly_threshold": 1.5,
+  "max_rows": 10000
+}

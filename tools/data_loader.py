@@ -2,8 +2,8 @@ import os
 import csv
 import json
 from typing import Dict, Any, List, Optional
-import pandas as pd  # For Excel and DataFrame
-from PyPDF2 import PdfReader  # For PDF text
+import pandas as pd
+from PyPDF2 import PdfReader
 
 def _ensure_dict(obj):
     """Recursively convert objects to plain dict/list."""
@@ -15,22 +15,24 @@ def _ensure_dict(obj):
         return {k: _ensure_dict(v) for k, v in obj.items()}
     return obj
 
+def load_config(config_path: str = "config/analysis_settings.json") -> Dict[str, Any]:
+    """Load analysis config from JSON file."""
+    with open(config_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 def load_data(
     filepath: str,
-    validate: bool = True,
-    max_rows: int = 10000
+    config_path: str = "config/analysis_settings.json"
 ) -> Dict[str, Any]:
     """
-    Load and validate business data from CSV, JSON, XLSX, or PDF.
-
-    Args:
-        filepath: Path to data file.
-        validate: Whether to validate required columns (for tabular data)
-        max_rows: Max number of rows for large files
-
-    Returns:
-        status, message, data (list[dict] or str), columns, row_count
+    Load and validate business data from CSV, JSON, Excel, or PDF,
+    using analysis settings from config file.
     """
+    config = load_config(config_path)
+    validate = True
+    required_cols = set(config.get("required_columns", []))
+    max_rows = config.get("max_rows", 10000)
+
     ext = os.path.splitext(filepath)[-1].lower()
     try:
         # CSV
@@ -41,30 +43,27 @@ def load_data(
             data = _ensure_dict(data)
             columns = list(data[0].keys()) if data else []
         # JSON
-        elif ext in [".json"]:
+        elif ext == ".json":
             with open(filepath, "r", encoding='utf-8') as f:
                 data = json.load(f)
-            # Accept both list[dict] and dicts (convert to list)
             if isinstance(data, dict):
                 data = [data]
             data = _ensure_dict(data)
             columns = list(data[0].keys()) if data and isinstance(data[0], dict) else []
-        # Excel (xlsx)
+        # Excel (xlsx, xls)
         elif ext in [".xlsx", ".xls"]:
             df = pd.read_excel(filepath, nrows=max_rows)
             data = df.to_dict(orient="records")
             data = _ensure_dict(data)
             columns = list(df.columns)
-        # PDF (just raw text, for downstream NLP agents)
+        # PDF (raw text for NLP)
         elif ext == ".pdf":
             reader = PdfReader(filepath)
             text = ""
             for page in reader.pages:
                 text += page.extract_text() or ""
-            # data as a single text field
             data = [{"text": text}]
             columns = ["text"]
-        # Unknown/ext unsupported
         else:
             return {
                 "status": "error",
@@ -74,9 +73,8 @@ def load_data(
                 "row_count": 0
             }
 
-        # Validate for tabular formats only
+        # Validate required columns from config for tabular formats only
         if validate and ext in [".csv", ".json", ".xlsx", ".xls"]:
-            required_cols = {'date', 'revenue', 'costs', 'customers'}
             actual_cols = set(columns)
             if not required_cols.issubset(actual_cols):
                 missing = required_cols - actual_cols
@@ -114,12 +112,13 @@ def load_data(
 
 def validate_schema(
     data: Optional[List[Dict[str, Any]]],
-    required_cols: Optional[set] = None
+    config_path: str = "config/analysis_settings.json"
 ) -> bool:
     """
-    Validate that dataset contains required columns.
+    Validate that dataset contains all required columns from config file.
     """
-    required = required_cols or {'date', 'revenue', 'costs', 'customers'}
+    config = load_config(config_path)
+    required = set(config.get("required_columns", []))
     data = _ensure_dict(data)
     if not data or not isinstance(data, list) or len(data) == 0:
         return False
