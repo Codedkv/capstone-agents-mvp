@@ -1,14 +1,24 @@
-def search_trends(data, query=None, top_n=3):
+from typing import List, Dict, Any, Optional
+
+def search_trends(
+    data: List[Dict[str, Any]], 
+    query: Optional[str] = None, 
+    top_n: int = 3
+) -> Dict[str, Any]:
     """
     Search for market trends in the business metrics dataset.
-    Arguments:
-        data: list of dicts, usually business metrics
-        query: optional search keyword (e.g., "growth", "competition")
-        top_n: number of trends to return
+    
+    Args:
+        data: List of dictionaries with business metrics (each dict = row)
+        query: Optional search keyword for trends (e.g., 'growth')
+        top_n: Number of trends to return (default 3)
+    
     Returns:
-        dict with 'trends' list and metadata
+        Dictionary with:
+        - trends (list): List of identified trends (rows matching query or top_n)
+        - query (str): The query used
+        - returned (int): Count of trends returned
     """
-    # Example stub: find rows where 'trend' or 'pattern' matches query, or return dummy if no logic
     results = []
     if query:
         for row in data:

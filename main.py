@@ -7,7 +7,7 @@ load_dotenv()
 
 async def main():
     llm_coordinator = LLMCoordinatorAgent()
-    metrics_file = os.getenv("METRICS_FILE", "data/sample_business_metrics.csv")
+    metrics_file = os.getenv("METRICS_FILE", "data/shipments_data.xlsx")
     final_result = await llm_coordinator.execute_pipeline(metrics_file)
 
     print("=== FINAL LLM PIPELINE RESULT ===")

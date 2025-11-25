@@ -1,7 +1,7 @@
 """Quick test for ADK-compatible tools."""
 
 from tools.adk_tools import (
-    load_csv_data,
+    load_data,
     detect_anomalies,
     search_market_trends,
     log_agent_action
@@ -13,8 +13,8 @@ def test_adk_tools():
     print("=== Testing ADK Tool Wrappers ===\n")
     
     # Test 1: Load CSV
-    print("1. Testing load_csv_data...")
-    result = load_csv_data(filepath="data/sample_business_metrics.csv")
+    print("1. Testing load_data...")
+    result = load_data(filepath="data/sample_business_metrics.csv")
     print(f"   Status: {result['status']}")
     if result['status'] == 'success':
         print(f"   Rows loaded: {result['row_count']}")
