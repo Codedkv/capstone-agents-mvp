@@ -77,6 +77,8 @@ class GeminiClient:
                         print(f"[GeminiClient] Executing tool: {func_name}({func_args})")
                         # Call the function — result is passed in special function_response format for LLM
                         tool_result = func_obj(**func_args)
+                        if not isinstance(tool_result, dict):
+                            tool_result = {"result": tool_result}
                         last_tool_response = {"name": func_name, "response": tool_result}
                         # Continue the loop so LLM can use the tool result properly
                         continue

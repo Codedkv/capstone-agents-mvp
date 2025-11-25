@@ -53,3 +53,5 @@
 {"timestamp": "2025-11-24T12:58:56.090785Z", "agent": "RecommendationAgent", "action": "start_recommendation_generation", "details": {"severity": "MEDIUM"}, "level": "INFO"}
 {"timestamp": "2025-11-24T12:58:56.091139Z", "agent": "RecommendationAgent", "action": "recommendations_generated", "details": {"total_actions": 3, "quick_wins": 0, "strategic": 1}, "level": "INFO"}
 {"timestamp": "2025-11-24T12:58:56.091822Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
+{"agent": "Analyst", "action": "Starting data analysis and anomaly detection.", "details": null}
+{"agent": "Recommender", "action": "Generated business recommendations based on anomaly analysis", "details": "Recommendations address negative quantities and total values, focusing on data cleansing, validation, process review, and system audits."}
