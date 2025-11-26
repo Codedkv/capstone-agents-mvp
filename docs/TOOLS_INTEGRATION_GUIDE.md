@@ -28,38 +28,38 @@ This guide covers the 5 production tools available in the system, their integrat
 
 All tools are controlled via `config/analysis_settings.json`:
 
+```json
 {
-"required_columns": ["date", "store_name", "product_name", "quantity", "price_per_unit", "total_value"],
-"anomaly_columns": ["quantity", "total_value"],
-"anomaly_method": "iqr",
-"anomaly_threshold": 1.5,
-"max_rows": 10000
+  "required_columns": ["date", "store_name", "product_name", "quantity", "price_per_unit", "total_value"],
+  "anomaly_columns": ["quantity", "total_value"],
+  "anomaly_method": "iqr",
+  "anomaly_threshold": 1.5,
+  "max_rows": 10000
 }
-
-text
+```
 
 ### Agent Integration Pattern
 
+```
 ┌─────────────────────────────┐
-│ Coordinator Agent (LLM) │
+│   Coordinator Agent (LLM)   │
 └──────────────┬──────────────┘
-│
-┌─────────┼─────────┐
-│ │ │
-▼ ▼ ▼
-[Tool 1] [Tool 2] [Tool 3]
-load_data anomalies report
-
-text
+               │
+       ┌───────┼───────┐
+       │       │       │
+       ▼       ▼       ▼
+   [Tool 1] [Tool 2] [Tool 3]
+   load_data anomalies report
+```
 
 Each agent calls tools with the `config_path` parameter:
 
+```python
 result = await load_data(
-file_path="data/shipments_data.xlsx",
-config_path="config/analysis_settings.json"
+    file_path="data/shipments_data.xlsx",
+    config_path="config/analysis_settings.json"
 )
-
-text
+```
 
 ---
 
@@ -70,27 +70,27 @@ text
 **Purpose:** Universal data loader supporting multiple formats with validation.
 
 **Signature:**
+```python
 async def load_data(
-file_path: str,
-config_path: str = "config/analysis_settings.json"
+    file_path: str,
+    config_path: str = "config/analysis_settings.json"
 ) -> ToolResult
-
-text
+```
 
 **Parameters:**
 - `file_path` (str, required): Path to data file (CSV, Excel, JSON, PDF)
 - `config_path` (str, optional): Path to configuration file
 
 **Returns:**
+```json
 {
-"success": True,
-"data": [...],
-"row_count": 10000,
-"columns": ["date", "store_name", ...],
-"execution_time_ms": 342
+  "success": true,
+  "data": [...],
+  "row_count": 10000,
+  "columns": ["date", "store_name", ...],
+  "execution_time_ms": 342
 }
-
-text
+```
 
 **Supported Formats:**
 - CSV (`.csv`) — Fast parsing with pandas
@@ -104,18 +104,18 @@ text
 - Skips malformed rows with warning
 
 **Example:**
+```python
 from tools.data_loader import load_data
 
 result = await load_data(
-file_path="data/transactions.csv",
-config_path="config/analysis_settings.json"
+    file_path="data/transactions.csv",
+    config_path="config/analysis_settings.json"
 )
 
 if result["success"]:
-print(f"Loaded {result['row_count']} rows")
-data = result["data"]
-
-text
+    print(f"Loaded {result['row_count']} rows")
+    data = result["data"]
+```
 
 ---
 
@@ -124,15 +124,15 @@ text
 **Purpose:** Identify statistical outliers using IQR or Z-score methods.
 
 **Signature:**
+```python
 async def detect_anomalies(
-data: list,
-anomaly_columns: list = None,
-method: str = "iqr",
-threshold: float = 1.5,
-config_path: str = "config/analysis_settings.json"
+    data: list,
+    anomaly_columns: list = None,
+    method: str = "iqr",
+    threshold: float = 1.5,
+    config_path: str = "config/analysis_settings.json"
 ) -> ToolResult
-
-text
+```
 
 **Parameters:**
 - `data` (list, required): List of dictionaries from `load_data`
@@ -142,23 +142,23 @@ text
 - `config_path` (str, optional): Path to configuration
 
 **Returns:**
+```json
 {
-"success": True,
-"data": [
-{
-"index": 42,
-"row": {...},
-"anomaly_score": 3.2,
-"method": "iqr",
-"severity": "HIGH"
-},
-...
-],
-"total_anomalies": 27,
-"execution_time_ms": 156
+  "success": true,
+  "data": [
+    {
+      "index": 42,
+      "row": {...},
+      "anomaly_score": 3.2,
+      "method": "iqr",
+      "severity": "HIGH"
+    },
+    ...
+  ],
+  "total_anomalies": 27,
+  "execution_time_ms": 156
 }
-
-text
+```
 
 **Methods:**
 
@@ -173,20 +173,20 @@ text
 - Threshold: 2.0 (95% confidence), 3.0 (99.7% confidence)
 
 **Example:**
+```python
 from tools.anomaly_detector import detect_anomalies
 
 anomalies = await detect_anomalies(
-data=loaded_data,
-anomaly_columns=["quantity", "total_value"],
-method="iqr",
-threshold=1.5,
-config_path="config/analysis_settings.json"
+    data=loaded_data,
+    anomaly_columns=["quantity", "total_value"],
+    method="iqr",
+    threshold=1.5,
+    config_path="config/analysis_settings.json"
 )
 
 for anomaly in anomalies["data"]:
-print(f"Row {anomaly['index']}: {anomaly['severity']} - Score {anomaly['anomaly_score']}")
-
-text
+    print(f"Row {anomaly['index']}: {anomaly['severity']} - Score {anomaly['anomaly_score']}")
+```
 
 ---
 
@@ -195,13 +195,13 @@ text
 **Purpose:** Search for market trends, patterns, or related information.
 
 **Signature:**
+```python
 async def search_trends(
-topic: str,
-use_api: bool = False,
-config_path: str = "config/analysis_settings.json"
+    topic: str,
+    use_api: bool = False,
+    config_path: str = "config/analysis_settings.json"
 ) -> ToolResult
-
-text
+```
 
 **Parameters:**
 - `topic` (str, required): Search query (e.g., "Widget-X sales anomaly")
@@ -209,36 +209,36 @@ text
 - `config_path` (str, optional): Path to configuration
 
 **Returns:**
+```json
 {
-"success": True,
-"data": [
-{
-"title": "Market insights on Widget-X",
-"description": "Recent trends show...",
-"source": "mock" | "google",
-"relevance_score": 0.92
-},
-...
-],
-"result_count": 5,
-"execution_time_ms": 234
+  "success": true,
+  "data": [
+    {
+      "title": "Market insights on Widget-X",
+      "description": "Recent trends show...",
+      "source": "mock" | "google",
+      "relevance_score": 0.92
+    },
+    ...
+  ],
+  "result_count": 5,
+  "execution_time_ms": 234
 }
-
-text
+```
 
 **Example:**
+```python
 from tools.market_trends import search_trends
 
 trends = await search_trends(
-topic="Widget-X Friday spike anomaly",
-use_api=False,
-config_path="config/analysis_settings.json"
+    topic="Widget-X Friday spike anomaly",
+    use_api=False,
+    config_path="config/analysis_settings.json"
 )
 
 for trend in trends["data"]:
-print(f"{trend['title']} ({trend['relevance_score']:.0%})")
-
-text
+    print(f"{trend['title']} ({trend['relevance_score']:.0%})")
+```
 
 ---
 
@@ -247,13 +247,13 @@ text
 **Purpose:** Create interactive HTML reports with charts and insights.
 
 **Signature:**
+```python
 async def generate_report_html(
-report_data: dict,
-output_file: str = "output/analysis_report.html",
-config_path: str = "config/analysis_settings.json"
+    report_data: dict,
+    output_file: str = "output/analysis_report.html",
+    config_path: str = "config/analysis_settings.json"
 ) -> ToolResult
-
-text
+```
 
 **Parameters:**
 - `report_data` (dict, required): Report contents
@@ -265,23 +265,33 @@ text
 - `config_path` (str, optional): Path to configuration
 
 **Returns:**
+```json
 {
-"success": True,
-"data": {
-"file_path": "output/analysis_report.html",
-"file_size_kb": 145,
-"sections_generated": 4
-},
-"execution_time_ms": 89
+  "success": true,
+  "data": {
+    "file_path": "output/analysis_report.html",
+    "file_size_kb": 145,
+    "sections_generated": 4
+  },
+  "execution_time_ms": 89
 }
-
-text
+```
 
 **Report Structure:**
-<html> <head><title>Report Title</title></head> <body> <!-- Summary --> <!-- Anomaly Table --> <!-- Charts (if data available) --> <!-- Recommendations --> </body> </html> ```
-Example:
+```html
+<html>
+  <head><title>Report Title</title></head>
+  <body>
+    <!-- Summary -->
+    <!-- Anomaly Table -->
+    <!-- Charts (if data available) -->
+    <!-- Recommendations -->
+  </body>
+</html>
+```
 
-text
+**Example:**
+```python
 from tools.report_generator import generate_report_html
 
 report = await generate_report_html(
@@ -299,12 +309,16 @@ report = await generate_report_html(
 )
 
 print(f"Report saved to {report['data']['file_path']}")
-5. log_agent_action
-Purpose: Structured logging for observability and audit trails.
+```
 
-Signature:
+---
 
-text
+### 5. log_agent_action
+
+**Purpose:** Structured logging for observability and audit trails.
+
+**Signature:**
+```python
 async def log_agent_action(
     agent_name: str,
     action: str,
@@ -312,37 +326,35 @@ async def log_agent_action(
     level: str = "INFO",
     config_path: str = "config/analysis_settings.json"
 ) -> ToolResult
-Parameters:
+```
 
-agent_name (str, required): Agent identifier (e.g., "Coordinator", "Analyst")
+**Parameters:**
+- `agent_name` (str, required): Agent identifier (e.g., "Coordinator", "Analyst")
+- `action` (str, required): Action type (e.g., "start_analysis", "error_detected")
+- `details` (dict, optional): Additional context
+- `level` (str, optional): Log severity ("INFO", "WARNING", "ERROR")
+- `config_path` (str, optional): Path to configuration
 
-action (str, required): Action type (e.g., "start_analysis", "error_detected")
-
-details (dict, optional): Additional context
-
-level (str, optional): Log severity ("INFO", "WARNING", "ERROR")
-
-config_path (str, optional): Path to configuration
-
-Returns:
-
-text
+**Returns:**
+```json
 {
-    "success": True,
-    "data": {
-        "log_file": "logs/agent_actions.jsonl",
-        "entry_id": "uuid-1234",
-        "timestamp": "2024-11-25T15:32:10Z"
-    },
-    "execution_time_ms": 5
+  "success": true,
+  "data": {
+    "log_file": "logs/agent_actions.jsonl",
+    "entry_id": "uuid-1234",
+    "timestamp": "2024-11-25T15:32:10Z"
+  },
+  "execution_time_ms": 5
 }
-Log Format (JSONL):
+```
 
-text
+**Log Format (JSONL):**
+```json
 {"timestamp": "2024-11-25T15:32:10Z", "agent": "Coordinator", "action": "start_analysis", "level": "INFO", "details": {...}}
-Example:
+```
 
-text
+**Example:**
+```python
 from tools.action_logger import log_agent_action
 
 await log_agent_action(
@@ -356,11 +368,17 @@ await log_agent_action(
     level="INFO",
     config_path="config/analysis_settings.json"
 )
-Integration Patterns
-Pattern 1: Sequential Tool Execution
+```
+
+---
+
+## Integration Patterns
+
+### Pattern 1: Sequential Tool Execution
+
 Execute tools one after another, using output from previous step:
 
-text
+```python
 async def sequential_analysis(file_path: str, config_path: str):
     load_result = await load_data(file_path, config_path)
     if not load_result["success"]:
@@ -388,29 +406,33 @@ async def sequential_analysis(file_path: str, config_path: str):
     )
     
     return report_result
-Pattern 2: Parallel Tool Execution
+```
+
+### Pattern 2: Parallel Tool Execution
+
 Execute independent tools concurrently using asyncio:
 
-text
+```python
 import asyncio
 
-async def parallel_workflow(data: list, config_path: str):
-    results = await asyncio.gather(
-        detect_anomalies(data, config_path=config_path),
-        search_trends("sales anomaly", config_path=config_path),
-        log_agent_action("Coordinator", "parallel_start", config_path=config_path)
-    )
+def parallel_workflow(file_path: str, config_path: str):
+    # Note: Tools are synchronous in MVP
+    anomalies = detect_anomalies(file_path, config_path=config_path)
+    trends = search_trends(file_path, config_path=config_path)
+    log_agent_action("Coordinator", "parallel_start")
     
-    anomalies, trends, _ = results
     return {"anomalies": anomalies, "trends": trends}
-Pattern 3: Error Handling with Fallback
+```
+
+### Pattern 3: Error Handling with Fallback
+
 Gracefully handle tool failures:
 
-text
-async def resilient_workflow(file_path: str, config_path: str):
+```python
+def resilient_workflow(file_path: str, config_path: str):
     try:
-        result = await load_data(file_path, config_path)
-        if not result["success"]:
+        result = load_data(file_path, config_path)
+        if result["status"] != "success":
             raise Exception(f"Load failed: {result.get('error')}")
         return result["data"]
     
@@ -432,19 +454,27 @@ async def resilient_workflow(file_path: str, config_path: str):
             config_path=config_path
         )
         return None
-Creating Custom Tools
-Tool Template
+```
+
+---
+
+## Creating Custom Tools
+
+### Tool Template
+
 Create a new tool by following this structure:
 
-text
-# tools/custom_tool.py
-from typing import Any, Dict, List
-from core.observability import ObservabilityPlugin
+```python
 
-async def custom_tool(
+# tools/custom_tool.py
+from typing import Any, Dict
+import json
+
+def custom_tool(
     input_data: Any,
     config_path: str = "config/analysis_settings.json"
 ) -> Dict[str, Any]:
+
     """
     Custom tool description.
     
@@ -463,14 +493,14 @@ async def custom_tool(
     observer = ObservabilityPlugin()
     start_time = observer.get_timestamp()
     
-    try:
+        try:
         result_data = process(input_data)
         
         return {
-            "success": True,
-            "data": result_data,
-            "execution_time_ms": observer.get_elapsed(start_time)
+            "status": "success",
+            "data": result_data
         }
+
     
     except Exception as e:
         return {
@@ -479,10 +509,13 @@ async def custom_tool(
             "error": str(e),
             "execution_time_ms": observer.get_elapsed(start_time)
         }
-Registering Custom Tools
+```
+
+### Registering Custom Tools
+
 Add to agent tools list in your tools module:
 
-text
+```python
 from tools.custom_tool import custom_tool
 
 TOOLS = [
@@ -493,11 +526,17 @@ TOOLS = [
     log_agent_action,
     custom_tool  # Add your tool here
 ]
-Configuration Management
-Using config/analysis_settings.json
+```
+
+---
+
+## Configuration Management
+
+### Using config/analysis_settings.json
+
 All tools read from this central configuration file:
 
-json
+```json
 {
   "required_columns": ["date", "store_name", "product_name", "quantity", "price_per_unit", "total_value"],
   "anomaly_columns": ["quantity", "total_value"],
@@ -507,18 +546,23 @@ json
   "log_level": "INFO",
   "output_dir": "output"
 }
-Dynamic Configuration Per Domain
+```
+
+### Dynamic Configuration Per Domain
+
 Create domain-specific configs:
 
-bash
+```
 config/
-├── analysis_settings.json          # Default (retail)
-├── analysis_settings_finance.json  # Financial fraud detection
+├── analysis_settings.json            # Default (retail)
+├── analysis_settings_finance.json    # Financial fraud detection
 ├── analysis_settings_healthcare.json # Patient data analysis
 └── analysis_settings_supply_chain.json # Logistics anomalies
+```
+
 Pass config to tools:
 
-python
+```python
 # Financial analysis
 await detect_anomalies(
     data=transactions,
@@ -530,11 +574,17 @@ await detect_anomalies(
     data=patient_vitals,
     config_path="config/analysis_settings_healthcare.json"
 )
-Performance Tuning
-Optimization Tips
-1. Batch Processing
+```
 
-python
+---
+
+## Performance Tuning
+
+### Optimization Tips
+
+**1. Batch Processing**
+
+```python
 # Instead of processing one by one
 for row in large_dataset:
     result = await process(row)  # SLOW
@@ -543,41 +593,51 @@ for row in large_dataset:
 results = await asyncio.gather(*[
     process(batch) for batch in batched(large_dataset, 100)
 ])  # FAST
-2. Select Appropriate Anomaly Method
+```
 
-IQR: O(n log n) - Best for general use
+**2. Select Appropriate Anomaly Method**
+- IQR: O(n log n) - Best for general use
+- Z-Score: O(n) - Fast but requires normal distribution
+- Threshold: O(n) - Fastest but least sophisticated
 
-Z-Score: O(n) - Fast but requires normal distribution
+**3. Reduce max_rows in Config**
 
-Threshold: O(n) - Fastest but least sophisticated
-
-3. Reduce max_rows in Config
-
-json
+```json
 {
-  "max_rows": 5000  # Process first 5K rows, not 10K
+  "max_rows": 5000  // Process first 5K rows, not 10K
 }
-4. Use Parallel Tools
+```
 
-python
+**4. Use Parallel Tools**
+
+```python
 # Load, detect, search in parallel
 results = await asyncio.gather(
     load_data(...),
     detect_anomalies(...),
     search_trends(...)
 )
-Benchmark Results (Local Testing)
-Operation	Rows	Time	Method
-load_data	10,000	125ms	Pandas
-detect_anomalies (IQR)	10,000	42ms	NumPy
-detect_anomalies (Z-score)	10,000	38ms	NumPy
-search_trends	-	89ms	Mock API
-generate_report_html	100 issues	156ms	Jinja2
-Observability & Debugging
-Structured Logging
-All tools output structured logs to logs/agent_actions.jsonl:
+```
 
-json
+### Benchmark Results (Local Testing)
+
+| Operation | Rows | Time | Method |
+|-----------|------|------|--------|
+| load_data | 10,000 | 125ms | Pandas |
+| detect_anomalies (IQR) | 10,000 | 42ms | NumPy |
+| detect_anomalies (Z-score) | 10,000 | 38ms | NumPy |
+| search_trends | - | 89ms | Mock API |
+| generate_report_html | 100 issues | 156ms | Jinja2 |
+
+---
+
+## Observability & Debugging
+
+### Structured Logging
+
+All tools output structured logs to `logs/agent_actions.jsonl`:
+
+```json
 {
   "timestamp": "2024-11-25T15:32:10.234Z",
   "trace_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -590,10 +650,13 @@ json
     "execution_time_ms": 125
   }
 }
-Trace IDs for End-to-End Tracking
+```
+
+### Trace IDs for End-to-End Tracking
+
 Every agent workflow generates a unique trace ID:
 
-python
+```python
 from core.observability import ObservabilityPlugin
 
 observer = ObservabilityPlugin()
@@ -606,8 +669,11 @@ await log_agent_action(
     details={"trace_id": trace_id},
     config_path=config_path
 )
-Retrieving Metrics
-python
+```
+
+### Retrieving Metrics
+
+```python
 from core.observability import ObservabilityPlugin
 
 observer = ObservabilityPlugin()
@@ -616,9 +682,15 @@ metrics = observer.get_metrics_summary()
 print(f"Total agent calls: {metrics['total_agent_calls']}")
 print(f"Avg latency: {metrics['avg_latency_ms']}ms")
 print(f"Error rate: {metrics['error_rate']:.2%}")
-Testing Tools
-Unit Test Pattern
-python
+```
+
+---
+
+## Testing Tools
+
+### Unit Test Pattern
+
+```python
 import pytest
 from tools.data_loader import load_data
 from tools.anomaly_detector import detect_anomalies
@@ -664,8 +736,11 @@ async def test_load_nonexistent_file():
     
     assert result["success"] == False
     assert "error" in result
-Running Tests
-bash
+```
+
+### Running Tests
+
+```bash
 # Run all tests
 pytest tests/ -v
 
@@ -674,25 +749,34 @@ pytest tests/test_tools.py::test_load_csv_valid_file -v
 
 # With coverage report
 pytest tests/ --cov=tools --cov-report=html
-Troubleshooting
-Issue: Tool Not Found
-Problem: AttributeError: module 'tools' has no attribute 'unknown_tool'
+```
 
-Solution: Verify tool is imported in your tools module:
+---
 
-python
+## Troubleshooting
+
+### Issue: Tool Not Found
+
+**Problem:** `AttributeError: module 'tools' has no attribute 'unknown_tool'`
+
+**Solution:** Verify tool is imported in your tools module:
+
+```python
 # Check imports
 from tools.data_loader import load_data
 from tools.anomaly_detector import detect_anomalies
 
 # Verify tool is in tools list
 print(TOOLS)  # Should include your tool
-Issue: Configuration Not Applied
-Problem: Tool uses default config instead of custom one
+```
 
-Solution: Pass config_path explicitly to all tool calls:
+### Issue: Configuration Not Applied
 
-python
+**Problem:** Tool uses default config instead of custom one
+
+**Solution:** Pass `config_path` explicitly to all tool calls:
+
+```python
 # ✗ Wrong - uses default
 result = await detect_anomalies(data=data)
 
@@ -701,18 +785,18 @@ result = await detect_anomalies(
     data=data,
     config_path="config/analysis_settings_finance.json"
 )
-Issue: Anomaly Detection Returns No Results
-Problem: detect_anomalies returns empty list
+```
 
-Solutions:
+### Issue: Anomaly Detection Returns No Results
 
-Check threshold is appropriate
+**Problem:** `detect_anomalies` returns empty list
 
-Verify anomaly_columns exist in data
+**Solutions:**
+- Check threshold is appropriate
+- Verify anomaly_columns exist in data
+- Use IQR instead of Z-score if data isn't normal
 
-Use IQR instead of Z-score if data isn't normal
-
-python
+```python
 # Debug: Check data distribution
 import statistics
 values = [row[col] for row in data]
@@ -725,72 +809,93 @@ result = await detect_anomalies(
     data=data,
     threshold=2.0  # More lenient than 1.5
 )
-Issue: CSV File Encoding Error
-Problem: UnicodeDecodeError: 'utf-8' codec can't decode...
+```
 
-Solution: Ensure CSV is UTF-8 encoded. Convert if needed:
+### Issue: CSV File Encoding Error
 
-bash
+**Problem:** `UnicodeDecodeError: 'utf-8' codec can't decode...`
+
+**Solution:** Ensure CSV is UTF-8 encoded. Convert if needed:
+
+```bash
 # Convert CSV to UTF-8
 iconv -f ISO-8859-1 -t UTF-8 input.csv > output.csv
-Best Practices
-Always check result["success"] before accessing data
+```
 
-python
+---
+
+## Best Practices
+
+1. **Always check `result["success"]` before accessing data**
+
+```python
 result = await load_data(...)
 if result["success"]:
     data = result["data"]
-Use appropriate anomaly detection method
+```
 
-IQR: General purpose, robust
+2. **Use appropriate anomaly detection method**
+   - IQR: General purpose, robust
+   - Z-score: When data is normal distributed
+   - Threshold: Simple, fast checks
 
-Z-score: When data is normal distributed
+3. **Log all agent actions for observability**
 
-Threshold: Simple, fast checks
-
-Log all agent actions for observability
-
-python
+```python
 await log_agent_action(
     agent_name="MyAgent",
     action="critical_operation",
     details={"status": "success"}
 )
-Handle errors gracefully with fallbacks
+```
 
-python
+4. **Handle errors gracefully with fallbacks**
+
+```python
 try:
     result = await tool(...)
 except Exception as e:
     return fallback_data()
-Use asyncio.gather for parallel execution
+```
 
-python
+5. **Use asyncio.gather for parallel execution**
+
+```python
 results = await asyncio.gather(
     tool1(...),
     tool2(...),
     tool3(...)
 )
-Validate parameters before tool execution
+```
 
-python
+6. **Validate parameters before tool execution**
+
+```python
 if not file_path.endswith(('.csv', '.xlsx', '.json', '.pdf')):
     raise ValueError("Unsupported file format")
-Additional Resources
-Tool Source Code: tools/
+```
 
-Configuration Reference: config/analysis_settings.json
+---
 
-Test Suite: tests/test_tools.py
+## Additional Resources
 
-Observability: core/observability.py
+- **Tool Source Code:** `tools/`
+- **Configuration Reference:** `config/analysis_settings.json`
+- **Test Suite:** `tests/test_tools.py`
+- **Observability:** `core/observability.py`
+- **Main Entry Point:** `main.py`
 
-Main Entry Point: main.py
+---
 
-Version History
-Version	Date	Changes
-2.0	2024-11-25	Updated for config-driven architecture, removed ToolRegistry pattern
-1.0	2024-11-21	Initial MVP with ToolRegistry
-Last Updated: November 25, 2024
-Status: Production Ready
-Track: Kaggle Agents Intensive Capstone Project
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0 | 2024-11-25 | Updated for config-driven architecture, removed ToolRegistry pattern |
+| 1.0 | 2024-11-21 | Initial MVP with ToolRegistry |
+
+---
+
+**Last Updated:** November 25, 2024  
+**Status:** Production Ready  
+**Track:** Kaggle Agents Intensive Capstone Project
