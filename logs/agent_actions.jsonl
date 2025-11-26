@@ -55,3 +55,5 @@
 {"timestamp": "2025-11-24T12:58:56.091822Z", "agent": "Coordinator", "action": "analysis_complete", "details": {"anomalies_found": 1, "patterns_detected": 1, "recommendations_generated": 3, "report_generated": true}, "level": "INFO"}
 {"agent": "Analyst", "action": "Starting data analysis and anomaly detection.", "details": null}
 {"agent": "Recommender", "action": "Generated business recommendations based on anomaly analysis", "details": "Recommendations address negative quantities and total values, focusing on data cleansing, validation, process review, and system audits."}
+{"agent": "Analyst", "action": "Detecting anomalies in the dataset using default configuration.", "details": null}
+{"agent": "Analyst", "action": "Searching for trends in the dataset.", "details": null}

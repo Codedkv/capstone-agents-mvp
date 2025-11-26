@@ -1,85 +1,91 @@
-import statistics
+import pandas as pd
+import numpy as np
 import json
-from typing import List, Dict, Any
+import os
 
-def _ensure_dict(obj):
-    """Convert composite/generative objects to plain dict recursively."""
-    if isinstance(obj, dict):
-        return {k: _ensure_dict(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_ensure_dict(elem) for elem in obj]
-    if hasattr(obj, "items"):
-        return {k: _ensure_dict(v) for k, v in obj.items()}
-    return obj
-
-def load_config(config_path: str = "config/analysis_settings.json") -> Dict[str, Any]:
-    """Load anomaly detection config from JSON file."""
-    with open(config_path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def detect_anomalies(
-    data: List[Dict[str, Any]],
-    config_path: str = "config/analysis_settings.json"
-) -> Dict[str, Any]:
+def detect_anomalies(data, config_path="config/analysis_settings.json"):
     """
-    Detect anomalies in business data using config-driven settings.
-    Scans all anomaly_columns for outliers and aggregates results.
+    Detect anomalies in the dataset using IQR or Z-score methods.
+    
+    Arguments:
+        data: list[dict] OR str (filepath to .csv/.xlsx)
+        config_path: str (path to config)
+        
+    Returns:
+        dict: Anomaly report
     """
-    config = load_config(config_path)
-    anomaly_columns = config.get("anomaly_columns", [])
-    method = config.get("anomaly_method", "iqr")
-    threshold = config.get("anomaly_threshold", 1.5)
-    data = _ensure_dict(data)
+    try:
+        # 1. Handle data input (List vs Filepath)
+        if isinstance(data, str):
+            if not os.path.exists(data):
+                return {"error": f"File not found: {data}"}
+            
+            ext = os.path.splitext(data)[-1].lower()
+            if ext == '.csv':
+                df = pd.read_csv(data)
+            elif ext in ['.xls', '.xlsx']:
+                df = pd.read_excel(data)
+            elif ext == '.json':
+                df = pd.read_json(data)
+            else:
+                return {"error": "Unsupported file format provided to detector"}
+        else:
+            # Assume it's a list of dicts
+            df = pd.DataFrame(data)
 
-    if not data or not isinstance(data, list) or len(data) == 0:
-        return {"status": "success", "anomalies": [], "count": 0, "columns": anomaly_columns, "method": method}
+        if df.empty:
+            return {"error": "Dataset is empty"}
 
-    all_anomalies = []
+        # 2. Load Config
+        with open(config_path, "r") as f:
+            config = json.load(f)
+            
+        anomaly_cols = config.get("anomaly_columns", [])
+        method = config.get("anomaly_method", "iqr")
+        threshold = config.get("anomaly_threshold", 1.5)
 
-    for col in anomaly_columns:
-        # Extract numerical values for current column
-        values = [float(row.get(col, 0)) for row in data if isinstance(row, dict) and col in row]
-        if len(values) < 2:
-            continue
-        anomalies_col = []
-        if method == "iqr":
-            try:
-                q1 = statistics.quantiles(values, n=4)[0]
-                q3 = statistics.quantiles(values, n=4)[2]
-            except IndexError:
+        anomalies_summary = {}
+        
+        # 3. Detection Logic
+        for col in anomaly_cols:
+            if col not in df.columns:
                 continue
-            iqr = q3 - q1
-            lower = q1 - threshold * iqr
-            upper = q3 + threshold * iqr
-            for row in data:
-                v = float(row.get(col, 0))
-                if v < lower or v > upper:
-                    anomalies_col.append(row)
-        elif method == "zscore":
-            mean = statistics.mean(values)
-            stdev = statistics.stdev(values) if len(values) > 1 else 0
-            if stdev > 0:
-                for row in data:
-                    v = float(row.get(col, 0))
-                    z = (v - mean) / stdev
-                    if abs(z) > threshold:
-                        anomalies_col.append(row)
-        # Collect results for this column
-        all_anomalies.extend(anomalies_col)
+                
+            # Ensure numeric
+            series = pd.to_numeric(df[col], errors='coerce').dropna()
+            
+            if method == "iqr":
+                Q1 = series.quantile(0.25)
+                Q3 = series.quantile(0.75)
+                IQR = Q3 - Q1
+                lower_bound = Q1 - (threshold * IQR)
+                upper_bound = Q3 + (threshold * IQR)
+                
+                outliers = series[(series < lower_bound) | (series > upper_bound)]
+                
+            elif method == "zscore":
+                mean = series.mean()
+                std = series.std()
+                z_scores = (series - mean) / std
+                outliers = series[abs(z_scores) > threshold]
+            
+            else:
+                return {"error": f"Unknown method: {method}"}
 
-    # Deduplicate anomalies (by id/hash if available, else full row)
-    seen = set()
-    unique_anomalies = []
-    for row in all_anomalies:
-        key = tuple(sorted(row.items()))
-        if key not in seen:
-            seen.add(key)
-            unique_anomalies.append(row)
+            if not outliers.empty:
+                anomalies_summary[col] = {
+                    "count": len(outliers),
+                    "min_outlier": float(outliers.min()),
+                    "max_outlier": float(outliers.max()),
+                    "indices": outliers.index.tolist()[:10]  # Limit output
+                }
 
-    return {
-        "status": "success",
-        "anomalies": unique_anomalies,
-        "count": len(unique_anomalies),
-        "columns": anomaly_columns,
-        "method": method
-    }
+        return {
+            "status": "success",
+            "method": method,
+            "anomalies_detected": len(anomalies_summary) > 0,
+            "summary": anomalies_summary
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
