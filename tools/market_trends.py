@@ -13,6 +13,9 @@ def search_trends(data, config_path="config/analysis_settings.json"):
     try:
         # 1. Handle data input
         if isinstance(data, str):
+            # LLMs sometimes pass filepath with trailing whitespace which
+            # breaks os.path.splitext (".csv " is treated as unknown ext).
+            data = data.strip()
             if not os.path.exists(data):
                 return {"error": f"File not found: {data}"}
             

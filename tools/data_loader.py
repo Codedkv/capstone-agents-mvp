@@ -28,6 +28,12 @@ def load_data(
     Load and validate business data from CSV, JSON, Excel, or PDF,
     using analysis settings from config file.
     """
+    # LLMs sometimes pass filepath with trailing whitespace which breaks
+    # os.path.splitext (".csv " is treated as unknown ext) and the file
+    # existence check.
+    if isinstance(filepath, str):
+        filepath = filepath.strip()
+
     config = load_config(config_path)
     validate = True
     required_cols = set(config.get("required_columns", []))
