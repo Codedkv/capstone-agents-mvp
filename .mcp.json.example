@@ -1,0 +1,15 @@
+{
+  "_comment": "Copy to .mcp.json and fill in real values. .mcp.json is gitignored — never commit secrets to the public repo.",
+  "mcpServers": {
+    "memory": {
+      "command": "node",
+      "args": ["C:/Users/coded/mcp-servers/memory-mcp/dist/index.js"],
+      "env": {
+        "MEMORY_SUPABASE_URL": "https://YOUR_PROJECT_REF.supabase.co",
+        "MEMORY_SUPABASE_KEY": "your-supabase-service-role-key",
+        "VOYAGE_API_KEY": "your-voyage-api-key",
+        "LEGAL_EXPERT_API_KEY": "your-legal-expert-api-key"
+      }
+    }
+  }
+}
