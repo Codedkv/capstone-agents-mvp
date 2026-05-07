@@ -1,0 +1,18 @@
+{
+  "seo": {
+    "title": "Outlier — multi-agent business analytics on Gemini",
+    "description": "Drop a CSV or XLSX. Five Gemini agents detect anomalies, surface trends, and write a strategic report — all under a minute."
+  },
+  "hero": {
+    "brand": "outlier",
+    "title_line_1": "Find what stands out.",
+    "title_line_2": "Multi-agent business analytics on Gemini.",
+    "subtitle": "Drop your data — five agents detect anomalies, surface trends, generate recommendations, and a critic reviews the chain. All in under a minute.",
+    "cta": "Try the demo →",
+    "kaggle_note": "Built for the Google × Kaggle 5-Day AI Agents Intensive 2025."
+  },
+  "footer": {
+    "tagline": "Part of DK AI LAB",
+    "github": "GitHub"
+  }
+}
