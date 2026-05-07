@@ -15,7 +15,7 @@
 
 **Status:** working MVP. Runs locally via `python main.py`, ingests XLSX/CSV, outputs HTML report with executive summary + anomalies + recommendations + critic review.
 
-**Current state:** code in repo, no frontend, no deployment yet. Plan: build minimal frontend (drag-drop file → live progress → report rendering) and deploy to a `dklab.studio` subdomain. See TODO.
+**Current state:** Phase 1 (plug-in) and Phase 2 backend done. FastAPI app in `backend/` exposes 6 endpoints (upload / run / SSE events / report / cancel / health), single-worker queue, BYOK API-key model, slowapi rate-limiting. Pipeline E2E validated on `data/test_ecommerce.csv` (regression fixture, 30d × 8 SKU, 6 planted anomalies, baseline 3/6 recall). Frontend (`frontend/`) and deploy still pending.
 
 GitHub: https://github.com/Codedkv/capstone-agents-mvp (public)
 Kaggle notebook: https://www.kaggle.com/code/daniilkiliakou/notebook0fefd2e146
@@ -78,9 +78,7 @@ Shared infrastructure:
   - Data: pandas, openpyxl, PyPDF2
   - Validation: pydantic
   - Output: HTML with CSS styling
-- **Stack (planned for frontend):** TBD — choices to consider:
-  - **Streamlit** — fastest path, Python-native, drag-drop and rendering built-in. Good for MVP.
-  - **Next.js + FastAPI** — if we want to align with rest of ecosystem and have a proper SPA + REST backend. More work, more flexibility.
+- **Stack (frontend, decided 2026-05-07):** Next.js 16 + Tailwind 4 + Geist + next-intl, dark theme inherited from DK_AI_LAB_Landing, **orange accent** instead of lab's lime (Outlier as product differentiator within the lab brand family). Backend is FastAPI (`backend/`, already shipped).
 - **GitHub:** https://github.com/Codedkv/capstone-agents-mvp (public — Kaggle requirement)
 - **API key for Gemini:** stored locally in `.env` as `GOOGLE_API_KEY` / `GEMINI_API_KEY`. NEVER commit. NOT in shared MCP memory env (different from Voyage/Anthropic keys used by other projects).
 
@@ -120,6 +118,14 @@ For this Python project, memory pressure is low (one Python process, no JS toolc
 ### Python on Windows — git PATH
 
 Default PowerShell session does NOT have `git` in PATH. Use `C:\Program Files\Git\bin\git.exe` directly, or activate via `& 'C:\Program Files\Git\bin\git.exe'`. Same for `python` if not aliased — use `py` or full path.
+
+### Frontend dev server — Next 16 + Tailwind 4 trap (READ BEFORE `npm run dev`)
+
+Known bug across the lab: Next.js 16.1+ with `@tailwindcss/postcss` 4 enters an infinite Turbopack resolver loop. **RAM hits 100% in ~60 seconds, hard reset of the dev machine.** Same trap already burned `DK_AI_LAB_Landing` and `TMGG`.
+
+**Workaround (mandatory):** in `frontend/package.json` set `"dev": "next dev --webpack"`. Do NOT set `turbopack.root` or any other turbopack config — Turbopack stays off entirely for dev.
+
+Also run `mem_guard.ps1` from the operational safety net section above in a separate PowerShell window before the first `npm run dev`. Backup measure if anything else leaks.
 
 ### Gemini API rate limits
 
