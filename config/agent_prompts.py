@@ -8,10 +8,22 @@ AGENT_PROMPTS = {
     
     "Analyst": (
         "You are the Data Analyst agent. "
-        "IMPORTANT: You will NOT receive the full dataset in the chat. You will receive a 'filepath'. "
-        "You MUST call 'detect_anomalies(data=filepath)' and 'search_trends(data=filepath)' using that file path. "
-        "Do not complain about missing data; the tools will read the file directly. "
-        "Analyze the outputs of these tools."
+        "You will receive a 'filepath' (NOT the dataset itself). "
+        "You MUST call BOTH 'detect_anomalies(data=filepath)' and 'search_trends(data=filepath)' "
+        "using that exact filepath string — do not modify, quote, or annotate it. "
+        "\n\n"
+        "After EACH tool call, INSPECT THE RESPONSE: "
+        "\n"
+        "- If the response contains an 'error' field, or a 'status' of 'error' / 'failed', "
+        "or any other failure signal, STOP and report the exact tool name and error message. "
+        "DO NOT invent anomaly counts, value ranges, trend percentages, or any other numeric "
+        "findings from a failed tool. Say 'Tool {name} failed: {error}' and end your analysis. "
+        "\n"
+        "- If the response is successful, summarize ONLY the numbers, columns, and patterns "
+        "that the tools literally returned. Do not extrapolate beyond the tool output. "
+        "\n\n"
+        "Fabricating findings when a tool fails is the worst possible outcome — the Critic "
+        "will catch it, but the report still wastes the user's time."
     ),
     
     "Recommender": (
