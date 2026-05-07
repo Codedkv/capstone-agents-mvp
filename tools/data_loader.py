@@ -5,6 +5,14 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 from PyPDF2 import PdfReader
 
+from core.paths import DEFAULT_ANALYSIS_CONFIG
+
+# str-typed default so Gemini's auto-generated FunctionDeclaration JSON
+# schema stays simple — Path objects break Pydantic's schema inference
+# inside google.generativeai when this function is registered as a tool.
+DEFAULT_CONFIG_PATH_STR: str = str(DEFAULT_ANALYSIS_CONFIG)
+
+
 def _ensure_dict(obj):
     """Recursively convert objects to plain dict/list."""
     if isinstance(obj, dict):
@@ -15,14 +23,14 @@ def _ensure_dict(obj):
         return {k: _ensure_dict(v) for k, v in obj.items()}
     return obj
 
-def load_config(config_path: str = "config/analysis_settings.json") -> Dict[str, Any]:
+def load_config(config_path: str = DEFAULT_CONFIG_PATH_STR) -> Dict[str, Any]:
     """Load analysis config from JSON file."""
     with open(config_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def load_data(
     filepath: str,
-    config_path: str = "config/analysis_settings.json"
+    config_path: str = DEFAULT_CONFIG_PATH_STR,
 ) -> Dict[str, Any]:
     """
     Load and validate business data from CSV, JSON, Excel, or PDF,
@@ -118,7 +126,7 @@ def load_data(
 
 def validate_schema(
     data: Optional[List[Dict[str, Any]]],
-    config_path: str = "config/analysis_settings.json"
+    config_path: str = DEFAULT_CONFIG_PATH_STR,
 ) -> bool:
     """
     Validate that dataset contains all required columns from config file.

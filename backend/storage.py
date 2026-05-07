@@ -1,16 +1,21 @@
 """
 Filesystem layout for per-run artifacts.
 
-    runs/{run_id}/<original-filename>     # uploaded input
-    runs/{run_id}/report.html             # generated HTML report
+    <project_root>/runs/{run_id}/<original-filename>   # uploaded input
+    <project_root>/runs/{run_id}/report.html           # generated HTML report
+
+The runs directory is anchored to the project root via core.paths so the
+backend can be launched from any CWD (uvicorn from a subdir, systemd
+WorkingDirectory mismatch, etc.) without losing track of run artifacts.
 """
 
 import os
 import uuid
 from pathlib import Path
 
-RUNS_DIR = Path("runs")
-RUNS_DIR.mkdir(exist_ok=True)
+from core.paths import RUNS_DIR
+
+RUNS_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTS = {".csv", ".xlsx", ".xls", ".json"}
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB

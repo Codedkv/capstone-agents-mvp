@@ -1,6 +1,7 @@
-import os
 import json
 from datetime import datetime
+
+from core.paths import DEFAULT_AGENT_LOG, LOGS_DIR
 
 def _convert_to_serializable(obj):
     """
@@ -38,26 +39,23 @@ def log_agent_action(agent_name, action, details=None):
     Returns:
         dict: Confirmation of logged action
     """
-    log_dir = "logs"
-    os.makedirs(log_dir, exist_ok=True)
-    
-    log_file = os.path.join(log_dir, "agent_actions.log")
-    
-    # Convert details to JSON-serializable format
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = DEFAULT_AGENT_LOG
+
     safe_details = _convert_to_serializable(details) if details is not None else None
-    
+
     entry = {
         "timestamp": datetime.utcnow().isoformat(),
         "agent": agent_name,
         "action": action,
-        "details": safe_details
+        "details": safe_details,
     }
-    
+
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    
+
     return {
         "status": "success",
         "message": f"Action logged for {agent_name}",
-        "log_file": log_file
+        "log_file": str(log_file),
     }

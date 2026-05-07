@@ -10,6 +10,9 @@ import time
 from typing import List, Dict, Any
 from datetime import datetime
 
+from core.paths import LOGS_DIR, OUTPUT_DIR
+
+
 class ObservabilityPlugin:
     """
     ADK-style Observability Plugin.
@@ -20,8 +23,8 @@ class ObservabilityPlugin:
     - Collect performance metrics: latency, success rate, error count
     - Export data to JSON for analysis
     """
-    def __init__(self, log_dir="./logs"):
-        self.log_dir = log_dir
+    def __init__(self, log_dir=None):
+        self.log_dir = log_dir if log_dir is not None else str(LOGS_DIR)
         self.traces: Dict[str, Dict] = {}
         self.metrics = {
             "agent_calls": {},
@@ -103,15 +106,19 @@ class ObservabilityPlugin:
             "max_severity": self.metrics["max_severity"]
         }
 
-    def export_traces_json(self, output_file="output/traces.json"):
+    def export_traces_json(self, output_file=None):
         """Export all traces to JSON."""
+        if output_file is None:
+            output_file = str(OUTPUT_DIR / "traces.json")
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.traces, f, indent=2)
         return output_file
 
-    def export_metrics_json(self, output_file="output/metrics.json"):
+    def export_metrics_json(self, output_file=None):
         """Export aggregated metrics as JSON."""
+        if output_file is None:
+            output_file = str(OUTPUT_DIR / "metrics.json")
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         metrics = self.get_metrics_summary()
         with open(output_file, "w", encoding="utf-8") as f:

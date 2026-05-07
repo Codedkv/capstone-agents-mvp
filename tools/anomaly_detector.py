@@ -3,7 +3,13 @@ import numpy as np
 import json
 import os
 
-def detect_anomalies(data, config_path="config/analysis_settings.json"):
+from core.paths import DEFAULT_ANALYSIS_CONFIG
+
+# str-typed default for Gemini SDK FunctionDeclaration compatibility.
+DEFAULT_CONFIG_PATH_STR: str = str(DEFAULT_ANALYSIS_CONFIG)
+
+
+def detect_anomalies(data, config_path=DEFAULT_CONFIG_PATH_STR):
     """
     Detect anomalies in the dataset using IQR or Z-score methods.
     

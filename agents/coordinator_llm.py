@@ -1,5 +1,6 @@
 import os
 from agents.agent_roles_llm import init_agents
+from core.paths import DEFAULT_REPORT_OUTPUT
 from tools.report_generator import generate_report_html
 
 
@@ -43,12 +44,19 @@ class LLMCoordinatorAgent:
         text = value if isinstance(value, str) else str(value)
         return text if len(text) <= limit else text[:limit] + "..."
 
-    async def execute_pipeline(self, metrics_file, output_path="output/analysis_report.html"):
+    async def execute_pipeline(self, metrics_file, output_path=None):
         """
         Run the full 5-agent pipeline against `metrics_file` and write the
         final HTML report to `output_path`. Returns the executive summary
         string produced by the Coordinator agent.
+
+        `output_path` defaults to <project_root>/output/analysis_report.html
+        when None — anchored to the module location, not CWD, so the
+        pipeline produces the report in the same place regardless of where
+        uvicorn / python is launched from.
         """
+        if output_path is None:
+            output_path = str(DEFAULT_REPORT_OUTPUT)
         await self._emit("pipeline.start", {"file": metrics_file, "output_path": output_path})
 
         try:

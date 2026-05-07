@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-load_dotenv()
+from core.paths import DEFAULT_ENV_FILE
+load_dotenv(DEFAULT_ENV_FILE)
 import google.generativeai as genai
 import json
 from core.rate_limiter import get_shared_limiter
