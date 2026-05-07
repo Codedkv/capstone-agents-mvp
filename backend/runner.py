@@ -93,6 +93,20 @@ class PipelineRunner:
         self._cancel_flags[run_id] = True
         return True
 
+    def get_queue_position(self, run_id: str) -> Optional[int]:
+        """Position in the queued runs (0 = next to run), or None if the run
+        is not queued. Relies on Python 3.7+ dict insertion order."""
+        state = self._runs.get(run_id)
+        if state is None or state.status != "queued":
+            return None
+        pos = 0
+        for rid, rs in self._runs.items():
+            if rid == run_id:
+                return pos
+            if rs.status == "queued":
+                pos += 1
+        return pos
+
     async def _worker(self) -> None:
         while True:
             job = await self._queue.get()
