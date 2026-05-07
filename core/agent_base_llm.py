@@ -3,17 +3,18 @@
 from core.llm_client import GeminiClient
 
 class LLMAgent:
-    def __init__(self, role_name, system_instruction, toolset=None, model=None):
+    def __init__(self, role_name, system_instruction, toolset=None, model=None, api_key=None):
         """
         role_name: 'Coordinator', 'DataLoader', 'Analyzer', 'Recommender', 'Critic'
         system_instruction: System prompt describing the agent's role and objectives
         toolset: List of Python tools for function calling (ADK/wrappers)
         model: Which Gemini model to use (default: None = "gemini-2.5-flash")
+        api_key: Gemini API key. If None, GeminiClient falls back to env vars.
         """
         self.role_name = role_name
         self.system_instruction = system_instruction
         self.tools = toolset or []
-        self.llm = GeminiClient(model=model or "gemini-2.5-flash")
+        self.llm = GeminiClient(model=model or "gemini-2.5-flash", api_key=api_key)
 
     async def act(self, user_input, context=None):
         """

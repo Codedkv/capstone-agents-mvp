@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import google.generativeai as genai
 import json
-from core.rate_limiter import RateLimiter
+from core.rate_limiter import get_shared_limiter
 
 
 class GeminiClient:
@@ -26,7 +26,7 @@ class GeminiClient:
         print(f"[GeminiClient] Using model: {self.model_name}")
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(self.model_name)
-        self.rate_limiter = RateLimiter()
+        self.rate_limiter = get_shared_limiter()
 
     async def call(self, prompt, tools=None, system_instruction=None, max_retries=3):
         """
@@ -37,17 +37,13 @@ class GeminiClient:
         if system_instruction:
             prompt = f"{system_instruction}\n{prompt}"
 
-        # Rate limiting: estimate tokens and wait if needed
         estimated_tokens = len(prompt.split()) * 2
-        await self.rate_limiter.wait_if_needed(estimated_tokens=estimated_tokens)
-
         retries = 0
         last_tool_response = None
         contents = [prompt]
-        
+
         while retries < max_retries:
             try:
-                # If there was a tool response previously, pass as proper function_response for LLM
                 if last_tool_response:
                     function_response = {
                         "function_response": {
@@ -56,6 +52,12 @@ class GeminiClient:
                         }
                     }
                     contents.append(function_response)
+
+                # Rate-limit before every physical Gemini call. Function-calling
+                # makes one logical .call() spin the loop multiple times, so a
+                # one-time check at the top is not enough — we must wait again
+                # before each generate_content_async().
+                await self.rate_limiter.wait_if_needed(estimated_tokens=estimated_tokens)
 
                 response = await self.model.generate_content_async(
                     contents,
@@ -132,11 +134,15 @@ class GeminiClient:
                 error_msg = str(e)
                 print(f"[GeminiClient] Error on attempt {retries}/{max_retries}: {error_msg}")
                 
-                # Check if it's a quota error (429)
+                # On 429: the in-process RateLimiter should normally prevent
+                # this, so reaching here means the bucket is genuinely full
+                # (or another process is using the same key). Sleep long
+                # enough for at least one slot to free up at the free-tier
+                # 5-RPM cadence.
                 if "429" in error_msg or "quota" in error_msg.lower():
-                    print("[GeminiClient] Quota exceeded. Rate limiter will wait before next attempt.")
+                    print("[GeminiClient] Quota exceeded. Backing off 30s before retry.")
                     import asyncio
-                    await asyncio.sleep(10)  # Wait 10 seconds on quota errors
+                    await asyncio.sleep(30)
                 
                 if retries >= max_retries:
                     raise e
