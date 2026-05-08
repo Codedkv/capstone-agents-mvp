@@ -15,7 +15,7 @@
 
 **Status:** working MVP. Runs locally via `python main.py`, ingests XLSX/CSV, outputs HTML report with executive summary + anomalies + recommendations + critic review.
 
-**Current state:** Phase 1 (plug-in) and Phase 2 backend done. FastAPI app in `backend/` exposes 6 endpoints (upload / run / SSE events / report / cancel / health), single-worker queue, BYOK API-key model, slowapi rate-limiting. Pipeline E2E validated on `data/test_ecommerce.csv` (regression fixture, 30d × 8 SKU, 6 planted anomalies, baseline 3/6 recall). Frontend (`frontend/`) and deploy still pending.
+**Current state:** Phases 1-3 complete (plug-in + backend + frontend). FastAPI app in `backend/` exposes 8 endpoints (upload / run / SSE events / report / cancel / health / validate_key / state), single-worker queue, BYOK API-key model, slowapi rate-limiting (10/min upload, 5/min run). Frontend Next.js 16 + Tailwind 4 + Geist + next-intl shipped E2E (browser flow validated 2026-05-07). Pipeline E2E validated on `data/test_ecommerce.csv` (regression fixture, 30d × 8 SKU, 6 planted anomalies, baseline 3/6 recall). All commits pushed through `a46ec07`. Next up: Phase 4 — analyzer quality.
 
 GitHub: https://github.com/Codedkv/capstone-agents-mvp (public)
 Kaggle notebook: https://www.kaggle.com/code/daniilkiliakou/notebook0fefd2e146
@@ -71,7 +71,7 @@ Shared infrastructure:
 
 - **VPS:** TBD — to be deployed alongside dklab.studio infra (CX22 188.245.89.60) or separate small instance
 - **Domain:** TBD — planned subdomain on dklab.studio (e.g. `agents.dklab.studio`, `analyze.dklab.studio` — name TBD)
-- **DB:** None currently. Future Phase 3 (anomaly persistence) will use PostgreSQL — likely Supabase or local Postgres on the deploy VPS.
+- **DB:** None currently. Future Phase 7 (anomaly persistence) will use PostgreSQL — likely Supabase or local Postgres on the deploy VPS.
 - **Stack (current MVP):**
   - Language: Python 3.10+
   - LLM: Google Gemini 2.5 Flash via `google-generativeai`
@@ -139,11 +139,14 @@ Below are project-specific ADDITIONS.
 ### «Старт» (Start) — Session bootstrap
 
 1. Read this CLAUDE.md fully
-2. `search_memory({ query: "Capstone-Agents-MVP latest progress", project: "capstone_agents", limit: 5 })`
-3. `list_recent({ days: 3, limit: 10, project: "capstone_agents" })`
-4. Check project structure: `ls agents/ tools/ config/ 2>/dev/null`
-5. Check Python env: `python --version` and verify `google-generativeai` installed
-6. Report: "Готов. [summary of state]"
+2. Read `STATE.md` (source of truth for roadmap and current status — read after CLAUDE.md, treat as more recent)
+3. Check for any `HANDOFF_*.md` in project root — if present, read it BEFORE trusting STATE.md (handoff docs document mid-session corrections)
+4. `memory:get_stats({ project: "capstone_agents" })` — quick health check + count
+5. If memory live: `memory:list_recent({ days: 3, limit: 10, project: "capstone_agents" })` and `memory:search_memory({ query: "Capstone-Agents-MVP latest progress", project: "capstone_agents", limit: 5 })`
+6. **If memory tools error or timeout: skip steps 4-5, continue with STATE.md + CLAUDE.md as ground truth.** Memory unavailability is not a blocker. Note in report: "memory MCP недоступен, работаю по файлам".
+7. Check project structure: `ls agents/ tools/ config/ 2>/dev/null`
+8. Check Python env: `python --version` and verify `google-generativeai` installed
+9. Report: "Готов. [summary of state]"
 
 ### «Сохранись» (Save) — Save knowledge + commit code
 
@@ -190,31 +193,56 @@ After completing any task, PROVE it works. Run the pipeline. Show the output. Do
 
 ## Current TODO
 
-### Phase 1 — Project plug-in (in progress, opened 2026-05-06)
+> Source of truth for full roadmap = `STATE.md` "⏳ Up next" section. CLAUDE.md TODO mirrors phase status only.
+
+### Phase 1 — Project plug-in ✓ DONE (2026-05-06)
 - [x] Clone repo to `C:\Projects_Local\Capstone-Agents-MVP`
 - [x] Apply project templates (.mcp.json, CLAUDE.md, STATE.md)
 - [x] Add to ecosystem table in `_templates/CLAUDE.md` and `DK_AI_LAB_Landing/CLAUDE.md`
-- [x] Save introduction memory entry to vector store (id `a222c415...`)
+- [x] Save introduction memory entry to vector store
 - [x] Public brand chosen: **Outlier** (subdomain: outlier.dklab.studio)
 - [x] Add product card data to dklab.studio products registry (status: `in_progress`, url → GitHub fallback until deploy)
 
-### Phase 2 — Frontend MVP
-- [ ] Decide frontend stack: Streamlit (fast) or Next.js + FastAPI (consistent with ecosystem)
-- [ ] Drag-drop file upload (CSV / XLSX / JSON)
-- [ ] Live progress indicator while agent pipeline runs
-- [ ] Render HTML report inline + download
-- [ ] Live API key input (so user can use own Gemini key)
-- [ ] Multi-format export (PDF, DOCX, email send)
+### Phase 2 — Backend (FastAPI + agent rewire) ✓ DONE (2026-05-07)
+- [x] Pipeline rewired for BYOK (api_key per-run, not boot constant)
+- [x] FastAPI backend with 8 endpoints (upload, run, events SSE, report, cancel, health, validate_key, state)
+- [x] Single-worker queue + slowapi rate-limit (10/min upload, 5/min run)
+- [x] SSE streaming with TERMINAL_EVENTS protocol
+- [x] BYOK pydantic validator (min_length=30, repr=False)
+- [x] CORS for localhost:3000 dev
 
-### Phase 3 — Deploy
-- [ ] Subdomain: **outlier.dklab.studio** (confirmed 2026-05-06)
-- [ ] VPS placement (existing CX22 188.245.89.60 or new instance)
-- [ ] Deploy pipeline (GitHub Actions or manual script)
-- [ ] HTTPS + monitoring
+### Phase 3 — Frontend (Next.js 16 + Tailwind 4 + SSE consumer) ✓ DONE (2026-05-07)
+- [x] Stack chosen: Next.js 16 + Tailwind 4 + Geist + next-intl 4.9, orange accent
+- [x] Drag-drop file upload (CSV / XLSX)
+- [x] Live SSE progress indicator (per-agent state)
+- [x] Iframe report rendering (sandbox="") + download
+- [x] Live API key input (React state only, NOT localStorage)
+- [x] Test connection button (validate_key endpoint)
+
+### Phase 4 — Analyzer quality — **NEXT UP** (estimate: half a day)
+- [ ] Per-SKU group-by IQR (currently global IQR on mixed SKUs causes 33 false-positives in `total_value`)
+- [ ] Add `price_per_unit` to `anomaly_columns` in `config/analysis_settings.json`
+- [ ] Low-side detection (z-score < -threshold or per-SKU floor) — current Gaming Mouse qty=0 missed
+- [ ] Enriched outlier output (product_name + date + value + magnitude, not bare indices)
+- [ ] Target: recall 5-6/6 on `data/test_ecommerce.csv` (current baseline: 3/6)
+
+### Phase 5 — Visual + Forecasting (estimate: 1-2 days)
+- [ ] Plotly interactive charts in HTML report (will require iframe `sandbox="allow-scripts"`)
+- [ ] Forecaster agent with Prophet — sixth agent, integrates with config-driven system
+
+### Phase 5+ — Universal schema inference (the "wow" feature for portfolio)
+- [ ] Schemer agent with hybrid pattern matching + LLM classifier
+- [ ] Replace `required_columns` config with `required_roles` (time / entity / metric)
+- [ ] "Drop any time-series CSV" marketing story
+
+### Phase 6 — Deploy
+- [ ] Subdomain: **outlier.dklab.studio** (confirmed)
+- [ ] VPS: existing CX22 (188.245.89.60) or new instance
+- [ ] nginx + Let's Encrypt + systemd unit for backend, Next.js standalone build
 - [ ] Update «Деплой» voice command in this file with concrete steps
-- [ ] Atomic flip: products.ts URL update + status: in_progress → live + commit + deploy DK_AI_LAB_Landing
+- [ ] Atomic flip: products.ts URL update + status `in_progress → live` + commit + deploy DK_AI_LAB_Landing
 
-### Phase 4 — Anomaly Intelligence (future, from README roadmap)
+### Phase 7 — Anomaly Intelligence (long-term)
 - [ ] Persistent anomaly DB (PostgreSQL)
 - [ ] Pattern recognition over time (seasonality, systemic degradation)
 - [ ] Cross-dataset correlation

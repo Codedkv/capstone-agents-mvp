@@ -1,11 +1,16 @@
 # Capstone-Agents-MVP — STATE
 
 Single source of truth for current project state. Update **before** ending any session.
-Last updated: 2026-05-07 (end-of-day session close)
+Last updated: 2026-05-08 (handoff absorption complete)
+
+> ⚠️ **Session handoff active (2026-05-08 morning)** — read `HANDOFF_2026-05-08.md` FIRST before trusting this file.
+> Memory MCP server crashed 2026-05-07 18:50 UTC, Claude Desktop session restart pending.
+> **Sections of THIS file are stale**: git status, working tree state, "Latest commit hashes" — actual git ground truth + corrections in handoff doc. CLAUDE.md ↔ STATE.md phase numbering desync also documented there.
+> After new session absorbs corrections: delete `HANDOFF_2026-05-08.md` + remove this banner. STATE.md will be clean again.
 
 ## 🎯 Current state
 
-**Phase:** Phase 3 (frontend) shipped E2E. Working tree pending commit + push.
+**Phase:** Phase 3 (frontend) shipped E2E. All commits pushed through `a46ec07`. Working tree clean. Ready for Phase 4 — analyzer quality.
 
 **Strategic pivot (acknowledged 2026-05-07):** Original Kaggle capstone deadline passed (badge issued 2025-12-18). This project is now **portfolio piece for Blazity job application** + flagship product card on dklab.studio. Not a deadline rush — quality over speed. Public framing: "Engine built November 2025 (Kaggle capstone), production wrapper + frontend + prompt hardening shipped May 2026."
 
@@ -18,39 +23,30 @@ Last updated: 2026-05-07 (end-of-day session close)
 - Regression test fixture in repo: `data/test_ecommerce.csv` (30d × 8 SKU, 6 planted anomalies, baseline 3/6 recall)
 
 **What does NOT work yet:**
-- Not deployed (no public URL — Phase 4)
+- Not deployed (no public URL — Phase 6)
 - Anomaly recall is 3/6 on regression — analyzer has known limitations (see Phase 4 roadmap)
 - Reports are text-only (no charts yet — Phase 5)
-- No persistent anomaly DB (every run is independent — Phase 5+)
+- No persistent anomaly DB (every run is independent — Phase 7)
 
 ## 🔄 In progress / pending
 
-- **Working tree (uncommitted):**
-  - `M` 10 backend files (paths anchor refactor) — kodder ready to commit as "fix: anchor file paths to module location, not CWD"
-  - `M` `CLAUDE.md` (Opus update — phase 2 status + frontend stack + Next 16 webpack workaround)
-  - `??` `frontend/` — entire Phase 3 frontend, ready to commit as "feat: add Outlier frontend (Next 16 + Tailwind 4 + SSE consumer)"
-  - `??` `core/paths.py` — included in paths-fix commit
-- **Backend commit `2e691e1` (validate_key + state endpoints) — committed but NOT pushed**
-- **Pending push:** `2e691e1` + 3 new commits (paths fix + CLAUDE.md + frontend) — all to be pushed in one go after commits land
+_(none — all committed and pushed through `a46ec07`)_
 
 ## ⏳ Up next (in priority order)
 
-### Immediate (next session start)
-1. Execute commit + push plan (3 separate commits + push to origin/main) — see voice-command "Сохранись" protocol in CLAUDE.md.
-
-### Phase 4 — Analyzer quality (estimate: half a day)
-2. **Per-SKU group-by anomaly detection** — current global IQR on mixed SKUs produces 33 false-positives in `total_value` (Smart Watch is consistently expensive, every row looks like outlier). Solution: groupby `product_name` before IQR computation. Same for `quantity`.
-3. **Add `price_per_unit` to `anomaly_columns`** in `config/analysis_settings.json` — currently price typos (planted A6 Laptop Stand 49.99→199.99, A3 Smart Watch 199.99→9.99) are ignored by design.
-4. **Low-side detection** — IQR theoretically catches both sides via `Q1 - 1.5*IQR`, but mixed-SKU smearing kills low-side sensitivity (planted A2 Gaming Mouse qty=0 missed). Add explicit z-score < -threshold layer or per-SKU floor.
-5. **Enrich outlier output** — Analyst currently reports "indices 49, 174" — useless for recommendations. Tools should return enriched context: product_name, date, value, deviation magnitude. Recommender then can give specific actionable advice ("Wireless Headphones spike on 2025-04-12 — investigate viral channel") instead of generic "investigate top performers".
-6. **Target:** recall 5-6/6 on test_ecommerce.csv. Re-run regression after each fix, track improvement.
+### Phase 4 — Analyzer quality (estimate: half a day) — **NEXT UP**
+1. **Per-SKU group-by anomaly detection** — current global IQR on mixed SKUs produces 33 false-positives in `total_value` (Smart Watch is consistently expensive, every row looks like outlier). Solution: groupby `product_name` before IQR computation. Same for `quantity`.
+2. **Add `price_per_unit` to `anomaly_columns`** in `config/analysis_settings.json` — currently price typos (planted A6 Laptop Stand 49.99→199.99, A3 Smart Watch 199.99→9.99) are ignored by design.
+3. **Low-side detection** — IQR theoretically catches both sides via `Q1 - 1.5*IQR`, but mixed-SKU smearing kills low-side sensitivity (planted A2 Gaming Mouse qty=0 missed). Add explicit z-score < -threshold layer or per-SKU floor.
+4. **Enrich outlier output** — Analyst currently reports "indices 49, 174" — useless for recommendations. Tools should return enriched context: product_name, date, value, deviation magnitude. Recommender then can give specific actionable advice ("Wireless Headphones spike on 2025-04-12 — investigate viral channel") instead of generic "investigate top performers".
+5. **Target:** recall 5-6/6 on test_ecommerce.csv. Re-run regression after each fix, track improvement.
 
 ### Phase 5 — Visual + Forecasting (estimate: 1-2 days)
-7. **Plotly interactive charts in HTML report** — time series with highlighted outliers, per-SKU small multiples, IQR distribution histograms. `plotly.offline.plot(fig, output_type='div')` embeds as HTML+JS. Will require relaxing iframe `sandbox=""` to `sandbox="allow-scripts"`. Best ROI for portfolio wow-factor.
-8. **Forecaster agent with Prophet** — new tool, new agent. Receives anomalies from Analyst → optionally winsorizes them → builds forecast with confidence intervals → returns numeric prediction + chart + caveat list. Critic validates against reasonable bounds. Architecturally fits config-driven system cleanly.
+6. **Plotly interactive charts in HTML report** — time series with highlighted outliers, per-SKU small multiples, IQR distribution histograms. `plotly.offline.plot(fig, output_type='div')` embeds as HTML+JS. Will require relaxing iframe `sandbox=""` to `sandbox="allow-scripts"`. Best ROI for portfolio wow-factor.
+7. **Forecaster agent with Prophet** — new tool, new agent. Receives anomalies from Analyst → optionally winsorizes them → builds forecast with confidence intervals → returns numeric prediction + chart + caveat list. Critic validates against reasonable bounds. Architecturally fits config-driven system cleanly.
 
 ### Phase 5+ — Universal schema inference (estimate: 1-2 days, the "wow" feature)
-9. **Schemer agent** for semantic column understanding. Hybrid pattern matching + LLM classifier:
+8. **Schemer agent** for semantic column understanding. Hybrid pattern matching + LLM classifier:
    - Pattern matching: dtype detection (datetime/numeric/categorical), regex on dates, uniqueness ratios for ID-vs-name distinction
    - LLM classifier: receives column names + 5-10 sample rows + dtypes, returns `{column → semantic_role}` where role ∈ `{time, entity_id, entity_name, primary_metric, secondary_metric, dimension}`
    - Hybrid because pure LLM hallucinates on revenue-vs-cost, pure pattern matching can't tell quantity from price
@@ -58,14 +54,14 @@ Last updated: 2026-05-07 (end-of-day session close)
    - Story: "Drop any time-series CSV — sales, IoT sensors, web analytics, zoo footfall — Outlier figures out the schema and analyzes." This is the marketing centerpiece for portfolio.
 
 ### Phase 6 — Deploy
-10. Subdomain `outlier.dklab.studio` (confirmed). VPS placement: existing CX22 (188.245.89.60, dklab.studio infra) most likely. nginx + Let's Encrypt + systemd unit for backend + serve Next.js standalone build.
-11. Update `«Деплой»` voice command in CLAUDE.md with concrete steps.
-12. Atomic flip in `DK_AI_LAB_Landing/lib/products.ts`: status `in_progress` → `live`, url → `https://outlier.dklab.studio`. Commit + deploy landing.
+9. Subdomain `outlier.dklab.studio` (confirmed). VPS placement: existing CX22 (188.245.89.60, dklab.studio infra) most likely. nginx + Let's Encrypt + systemd unit for backend + serve Next.js standalone build.
+10. Update `«Деплой»` voice command in CLAUDE.md with concrete steps.
+11. Atomic flip in `DK_AI_LAB_Landing/lib/products.ts`: status `in_progress` → `live`, url → `https://outlier.dklab.studio`. Commit + deploy landing.
 
 ### Phase 7 — Anomaly Intelligence (long-term, from original README roadmap)
-13. Persistent anomaly DB (PostgreSQL) — track anomalies across runs, surface recurring patterns
-14. Pattern recognition over time (seasonality, systemic degradation)
-15. Cross-dataset correlation
+12. Persistent anomaly DB (PostgreSQL) — track anomalies across runs, surface recurring patterns
+13. Pattern recognition over time (seasonality, systemic degradation)
+14. Cross-dataset correlation
 
 ## 🗂 Backlog (orthogonal to phases)
 
@@ -130,7 +126,7 @@ Last updated: 2026-05-07 (end-of-day session close)
 | **Output** | `output/analysis_report.html` (CLI) or `runs/{run_id}/report.html` (backend) |
 | **Regression fixture** | `data/test_ecommerce.csv` (30d × 8 SKU, 6 planted anomalies) |
 | **Project tag (memory)** | `capstone_agents` |
-| **Latest commit hashes** | local main: `2e691e1` (validate_key + state). origin/main: `e7d493e` (regression fixture). 3 commits + 1 push pending. |
+| **Latest commit hashes** | HEAD = origin/main = `a46ec07` (STATE.md snapshot). Working tree clean. |
 
 ## 🐛 Known limitations (honest, for portfolio readme)
 
@@ -140,6 +136,12 @@ Last updated: 2026-05-07 (end-of-day session close)
 - **iframe `sandbox=""`** blocks scripts entirely. Reports with embedded JS will need sandbox relaxation.
 - **EN-only `/app`.** Locale switcher works on landing, but `/app` UI copy is English. Translation pending.
 - **`google-generativeai` deprecated.** Warning visible in every run. Migration to `google-genai` planned.
+
+### Backend risks (Phase 3 → must address before Phase 6 deploy)
+
+- **In-memory state lost on uvicorn restart.** Active runs and event queues live in process memory. Restart kills any in-flight pipeline silently. Phase 6 deploy needs either Redis-backed state or systemd auto-restart with documented "restart kills runs" behavior in UI.
+- **No cleanup of `runs/` directory.** Every analysis writes a new `runs/{uuid}/` folder, never deleted. Disk fills slowly. Phase 6 deploy needs a cron / cleanup endpoint deleting runs older than N days.
+- **Cancel is partial.** `/api/cancel/{id}` flips a flag checked **between agents**, not mid-LLM-call. UI already documents this — adding to backend README too.
 
 ## How to use this file
 
