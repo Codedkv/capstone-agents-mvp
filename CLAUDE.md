@@ -131,6 +131,17 @@ Also run `mem_guard.ps1` from the operational safety net section above in a sepa
 
 Free tier of Gemini 2.5 Flash: 15 RPM, 250K TPM, 500 RPD. The full 5-agent pipeline does ~20-40 LLM calls per analysis run. **Rate hits are visible if multiple runs back-to-back without backoff.** For production frontend deploy, plan for paid tier or request queueing.
 
+## References (`.claude/references/`)
+
+Heavy or conditional documentation. Read by trigger, not by default.
+
+| File | Load when… |
+|------|-----------|
+| `multi-agent-workflow.md` | First read on every «Старт». Defines the 3-agent workflow (owner/Opus/coder), report expectations, voice-command provenance. |
+| `environment-gotchas.md` | Cross-project environment-level bugs (Next.js dev hangs, CSP weirdness, modal stacking). Capstone-specific operational notes stay inline under "Environment Gotchas" above. |
+| `memory-categories.md` | About to call `save_memory` and unsure which category fits. |
+| `gotchas.md` | Starting non-trivial changes, or seeing a failure for a reason that "shouldn't" exist. **Append new gotchas, never delete.** |
+
 ## Voice Commands Protocol
 
 Universal framework in RAG: `search_memory({ query: "universal voice commands protocol", project: "general" })`
